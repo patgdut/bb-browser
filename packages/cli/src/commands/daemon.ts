@@ -6,6 +6,7 @@
  *   bb-browser stop      停止 Daemon
  */
 
+import { startDaemon } from "@bb-browser/daemon";
 import { isDaemonRunning, stopDaemon } from "../daemon-manager.js";
 
 export interface DaemonOptions {
@@ -32,8 +33,6 @@ export async function daemonCommand(
 
   // 动态导入 daemon 包并启动
   try {
-    const { startDaemon } = await import("@bb-browser/daemon");
-    
     if (options.json) {
       console.log(JSON.stringify({ success: true, message: "Daemon 启动中..." }));
     } else {

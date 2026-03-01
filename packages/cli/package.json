@@ -13,7 +13,8 @@
     "dev": "tsup --watch"
   },
   "dependencies": {
-    "@bb-browser/shared": "workspace:*"
+    "@bb-browser/shared": "workspace:*",
+    "@bb-browser/daemon": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

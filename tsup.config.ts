@@ -17,6 +17,12 @@ export default defineConfig({
   },
   // 内部包打包进去
   noExternal: [/@bb-browser\/.*/],
+  esbuildOptions(options) {
+    options.alias = {
+      "@bb-browser/daemon": "./packages/daemon/src/index.ts",
+      "@bb-browser/shared": "./packages/shared/src/index.ts",
+    };
+  },
   // ws 使用 CommonJS 动态 require，必须保持外部依赖
   external: ["ws"],
 });

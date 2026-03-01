@@ -16,6 +16,7 @@ import { RequestManager } from "./request-manager.js";
 
 export interface HttpServerOptions {
   port?: number;
+  host?: string;
   onShutdown?: () => void;
 }
 
@@ -25,6 +26,7 @@ export interface HttpServerOptions {
 export class HttpServer {
   private server: Server | null = null;
   private port: number;
+  private host: string;
   private startTime: number = 0;
   private onShutdown?: () => void;
 
@@ -33,6 +35,7 @@ export class HttpServer {
 
   constructor(options: HttpServerOptions = {}) {
     this.port = options.port ?? DAEMON_PORT;
+    this.host = options.host ?? "127.0.0.1";
     this.onShutdown = options.onShutdown;
   }
 
@@ -49,7 +52,7 @@ export class HttpServer {
         reject(error);
       });
 
-      this.server.listen(this.port, "127.0.0.1", () => {
+      this.server.listen(this.port, this.host, () => {
         this.startTime = Date.now();
         resolve();
       });

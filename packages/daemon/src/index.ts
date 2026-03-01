@@ -19,6 +19,7 @@ const PID_FILE_PATH = "/tmp/bb-browser.pid";
 
 interface DaemonOptions {
   port: number;
+  host: string;
 }
 
 /**
@@ -26,11 +27,16 @@ interface DaemonOptions {
  */
 function parseOptions(): DaemonOptions {
   const { values } = parseArgs({
+    allowPositionals: true,
     options: {
       port: {
         type: "string",
         short: "p",
         default: String(DAEMON_PORT),
+      },
+      host: {
+        type: "string",
+        default: "127.0.0.1",
       },
       help: {
         type: "boolean",
@@ -62,6 +68,7 @@ Endpoints:
 
   return {
     port: parseInt(values.port ?? String(DAEMON_PORT), 10),
+    host: values.host ?? "127.0.0.1",
   };
 }
 
@@ -100,8 +107,9 @@ async function main(): Promise<void> {
   };
 
   // 创建 HTTP 服务器
-  const httpServer = new HttpServer({ 
+  const httpServer = new HttpServer({
     port: options.port,
+    host: options.host,
     onShutdown: shutdown,
   });
 
@@ -118,9 +126,15 @@ async function main(): Promise<void> {
   console.error("[Daemon] Waiting for extension connection...");
 }
 
-// 启动 Daemon
-main().catch((error) => {
-  console.error("[Daemon] Fatal error:", error);
-  cleanupPidFile();
-  process.exit(1);
-});
+export async function startDaemon(): Promise<void> {
+  await main();
+}
+
+// 直接运行时启动
+if (process.argv[1] && process.argv[1].endsWith("daemon.js")) {
+  main().catch((error) => {
+    console.error("[Daemon] Fatal error:", error);
+    cleanupPidFile();
+    process.exit(1);
+  });
+}
