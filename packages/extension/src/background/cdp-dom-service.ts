@@ -162,25 +162,26 @@ export async function getSnapshot(
     axNodes = await cdp.getFullAccessibilityTree(tabId);
   }
 
-  // 2. 收集 link 节点的 backendDOMNodeId
-  const linkBackendIds = new Set<number>();
-  for (const node of axNodes) {
-    if (node.role?.value === 'link' && node.backendDOMNodeId !== undefined) {
-      linkBackendIds.add(node.backendDOMNodeId);
+  // 2. 非交互模式下批量获取 link 的 href（交互模式不展示 URL，跳过此步骤）
+  let urlMap = new Map<number, string>();
+  if (!options.interactive) {
+    const linkBackendIds = new Set<number>();
+    for (const node of axNodes) {
+      if (node.role?.value === 'link' && node.backendDOMNodeId !== undefined) {
+        linkBackendIds.add(node.backendDOMNodeId);
+      }
     }
+    urlMap = await buildURLMap(tabId, linkBackendIds);
   }
 
-  // 3. 批量获取 link 的 href
-  const urlMap = await buildURLMap(tabId, linkBackendIds);
-
-  // 4. 格式化 AX 树
+  // 3. 格式化 AX 树
   const result = formatAXTree(axNodes, urlMap, {
     interactive: options.interactive,
     compact: options.compact,
     maxDepth: options.maxDepth,
   });
 
-  // 5. 转换为 RefInfo 并存储
+  // 4. 转换为 RefInfo 并存储
   const convertedRefs: Record<string, RefInfo> = {};
   for (const [refId, axRef] of Object.entries(result.refs)) {
     convertedRefs[refId] = {
