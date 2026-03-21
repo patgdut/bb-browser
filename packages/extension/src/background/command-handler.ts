@@ -1768,7 +1768,7 @@ async function handleDialog(command: CommandEvent): Promise<CommandResult> {
 /**
  * 等待标签页加载完成
  */
-function waitForTabLoad(tabId: number, timeout = 30000): Promise<void> {
+function waitForTabLoad(tabId: number, timeout = 60000): Promise<void> {
   return new Promise((resolve, reject) => {
     const timeoutId = setTimeout(() => {
       chrome.tabs.onUpdated.removeListener(listener);
